@@ -1,6 +1,7 @@
 from .board import Board
 # import random
-from .move_gen import getLegalMoves, isSquareAttacked
+# from .move_gen import getLegalMoves, isSquareAttacked
+from .move_gen_bb import isSquareAttacked, getLegalMoves
 
 
 class Game:
