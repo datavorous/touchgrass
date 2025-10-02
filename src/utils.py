@@ -40,3 +40,23 @@ def uci_to_coords(s):
 
 def clear_screen():
     os.system("clear")
+
+def uci_to_coords(uci_move):
+    """Convert UCI move notation (e.g. 'e2e4') to internal coordinate format ((x1,y1), (x2,y2))"""
+    if len(uci_move) < 4:
+        return None
+        
+    try:
+        from_file = ord(uci_move[0]) - ord('a')
+        from_rank = int(uci_move[1]) - 1
+        to_file = ord(uci_move[2]) - ord('a')
+        to_rank = int(uci_move[3]) - 1
+        
+        # Validate coordinates
+        if not (0 <= from_file <= 7 and 0 <= from_rank <= 7 and
+                0 <= to_file <= 7 and 0 <= to_rank <= 7):
+            return None
+            
+        return ((from_file, from_rank), (to_file, to_rank))
+    except (ValueError, IndexError):
+        return None
