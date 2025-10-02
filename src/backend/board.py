@@ -34,7 +34,7 @@ class Board:
             [WROOK, WKNIGHT, WBISHOP, WQUEEN, WKING, WBISHOP, WKNIGHT, WROOK],
         ]
 
-    def apply_move(self, move):
+    def apply_move(self, move, promotion_choice=None):
         (fx, fy), (tx, ty) = move
 
         original_piece = self.board[fx][fy]
@@ -51,11 +51,11 @@ class Board:
 
         promotion = None
         if original_piece == WPAWN and tx == 0:
-            promotion = WQUEEN
-            self.board[tx][ty] = WQUEEN
+            promotion = promotion_choice if promotion_choice else WQUEEN
+            self.board[tx][ty] = promotion
         elif original_piece == BPAWN and tx == 7:
-            promotion = BQUEEN
-            self.board[tx][ty] = BQUEEN
+            promotion = promotion_choice if promotion_choice else BQUEEN
+            self.board[tx][ty] = promotion
 
         return MoveRecord(
             moved_piece=original_piece,
@@ -69,8 +69,20 @@ class Board:
         (fx, fy), (tx, ty) = move
         # piece = self.board[tx][ty]
 
-        self.board[fx][fy] = move_record.moved_piece
-        self.board[tx][ty] = move_record.captured_piece
+        if move_record.promotion is not None:
+         # Pawn was promoted → put pawn back to original square
+            if move_record.moved_piece > 0:  # White pawn
+                self.board[fx][fy] = WPAWN
+            else:  # Black pawn
+                self.board[fx][fy] = BPAWN
+         
+            # Restore captured piece at promotion square
+            self.board[tx][ty] = move_record.captured_piece
+        
+        else:
+            # Normal undo     
+            self.board[fx][fy] = move_record.moved_piece
+            self.board[tx][ty] = move_record.captured_piece
 
         if move_record.moved_piece == WKING:
             self.wking_pos = (fx, fy)
