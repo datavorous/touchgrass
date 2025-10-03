@@ -30,13 +30,6 @@ def coords_to_uci(move):
     return f"{'abcdefgh'[fy]}{8-fx}{'abcdefgh'[ty]}{8-tx}"
 
 
-def uci_to_coords(s):
-    fy = "abcdefgh".index(s[0])
-    fx = 8 - int(s[1])
-    ty = "abcdefgh".index(s[2])
-    tx = 8 - int(s[3])
-    return ((fx, fy), (tx, ty))
-
 
 def clear_screen():
     os.system("clear")
