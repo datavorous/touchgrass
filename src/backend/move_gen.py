@@ -77,7 +77,6 @@ def canCastle(board, color, side, history):
     castle_rook = WROOK if color == "white" else BROOK
     by_white = color == "black"
 
-    #  (SHORT)
     if side == "SHORT":
         # LOS CHECK AND Verigying if King and rook are at home positions
         if (
@@ -99,7 +98,6 @@ def canCastle(board, color, side, history):
             return True
         return False
 
-    #  (LONG)
     elif side == "LONG":
         # LOS CHECK AND Verigying if King and rook are at home positions
         if (
@@ -113,7 +111,6 @@ def canCastle(board, color, side, history):
                 for col in [4, 3, 2]
             )
         ):
-            # History check if any of them has moved in the past
             for move in history:
                 if move.moved_piece == king:
                     return False
@@ -138,7 +135,9 @@ def getLegalMoves(board, color, history):
             if color == "black" and piece > 0:
                 continue
 
-            for nx, ny in getPseudoLegalMoves(board.board, x, y):
+            for nx, ny in getPseudoLegalMoves(
+                board.board, x, y, board.en_passant_target
+            ):
                 move = ((x, y), (nx, ny))
                 record = board.apply_move(move)
 
@@ -156,13 +155,11 @@ def getLegalMoves(board, color, history):
     # (SHORT) castling
     if canCastle(board, color, "SHORT", history):
         rook_start = (row, 7)
-        # King moves
         moves.append((king_start, (row, 6)))
 
     # (LONG) castling
     if canCastle(board, color, "LONG", history):
         rook_start = (row, 0)
-        # King moves
         moves.append((king_start, (row, 2)))
 
     return moves

@@ -1,4 +1,5 @@
 import os
+import platform
 
 piece_map = {
     0: "·",
@@ -39,4 +40,7 @@ def uci_to_coords(s):
 
 
 def clear_screen():
-    os.system("clear")
+    if platform.system() == "Windows":
+        os.system("cls")
+    else:
+        os.system("clear")
