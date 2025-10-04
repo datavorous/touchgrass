@@ -9,6 +9,11 @@ class MoveRecord:
     promotion: Optional[int] = None
     from_sq: Tuple[int, int] = (0, 0)
     to_sq: Tuple[int, int] = (0, 0)
+    en_passant_target: Optional[Tuple[int, int]] = None
+    was_en_passant_capture: bool = False
+    en_passant_capture_sq: Optional[Tuple[int, int]] = (
+        None  # Where the captured pawn was
+    )
 
 
 EMPTY = 0
@@ -21,6 +26,7 @@ class Board:
         self.board = self.starting_pos()
         self.wking_pos = (7, 4)
         self.bking_pos = (0, 4)
+        self.en_passant_target = None
 
     def starting_pos(self):
         return [
@@ -38,8 +44,26 @@ class Board:
         (fx, fy), (tx, ty) = move
 
         original_piece = self.board[fx][fy]
-
         captured = self.board[tx][ty]
+
+        prev_en_passant = self.en_passant_target
+        self.en_passant_target = None
+
+        was_en_passant_capture = False
+        en_passant_capture_sq = None
+
+        if (
+            abs(original_piece) == WPAWN
+            and prev_en_passant is not None
+            and (tx, ty) == prev_en_passant
+        ):
+            was_en_passant_capture = True
+            if original_piece == WPAWN:
+                en_passant_capture_sq = (tx + 1, ty)
+            else:
+                en_passant_capture_sq = (tx - 1, ty)
+            captured = self.board[en_passant_capture_sq[0]][en_passant_capture_sq[1]]
+            self.board[en_passant_capture_sq[0]][en_passant_capture_sq[1]] = EMPTY
 
         self.board[tx][ty] = original_piece
         self.board[fx][fy] = EMPTY
@@ -49,18 +73,23 @@ class Board:
         elif original_piece == BKING:
             self.bking_pos = (tx, ty)
 
+        # Check double pawn move
+        if abs(original_piece) == WPAWN and abs(fx - tx) == 2:
+            # Set en passant target
+            en_passant_x = (fx + tx) // 2
+            self.en_passant_target = (en_passant_x, fy)
+
         # HANDLE CASTLING
-        # CHECK IF KING MADE A 2SQR MOVE
         if abs(original_piece) == WKING and abs(fy - ty) == 2:
             # SHORT
             if ty == 6:
                 rook = self.board[fx][7]
-                self.board[fx][5] = rook  # move rook
-                self.board[fx][7] = EMPTY  # empty the sqr
+                self.board[fx][5] = rook
+                self.board[fx][7] = EMPTY
             # LONG
             elif ty == 2:
                 rook = self.board[fx][0]
-                self.board[fx][3] = rook  # move rook
+                self.board[fx][3] = rook
                 self.board[fx][0] = EMPTY
 
         promotion = None
@@ -77,28 +106,40 @@ class Board:
             promotion=promotion,
             from_sq=(fx, fy),
             to_sq=(tx, ty),
+            en_passant_target=prev_en_passant,
+            was_en_passant_capture=was_en_passant_capture,
+            en_passant_capture_sq=en_passant_capture_sq,
         )
 
     def undo_move(self, move, move_record):
         (fx, fy), (tx, ty) = move
-        # piece = self.board[tx][ty]
 
         self.board[fx][fy] = move_record.moved_piece
-        self.board[tx][ty] = move_record.captured_piece
+
+        if move_record.was_en_passant_capture:
+            self.board[tx][ty] = EMPTY
+            self.board[move_record.en_passant_capture_sq[0]][
+                move_record.en_passant_capture_sq[1]
+            ] = move_record.captured_piece
+        else:
+            self.board[tx][ty] = move_record.captured_piece
+
+        self.en_passant_target = move_record.en_passant_target
 
         if move_record.moved_piece == WKING:
             self.wking_pos = (fx, fy)
         elif move_record.moved_piece == BKING:
             self.bking_pos = (fx, fy)
+
         # CASTLING UNDO
         if abs(move_record.moved_piece) == WKING and abs(fy - ty) == 2:
             # SHORT
             if ty == 6:
                 rook = self.board[fx][5]
-                self.board[fx][7] = rook  # undo rook
+                self.board[fx][7] = rook
                 self.board[fx][5] = EMPTY
             # LONG
             elif ty == 2:
                 rook = self.board[fx][3]
-                self.board[fx][0] = rook  # nudo rook
+                self.board[fx][0] = rook
                 self.board[fx][3] = EMPTY

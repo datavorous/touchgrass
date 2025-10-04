@@ -42,8 +42,6 @@ class Game:
         record = self.board.apply_move(move)
         self.history.append(record)
 
-        # self.turn = "black" if self.turn == "white" else "white"
-
         state = self.get_gamestate()
         if state != "ongoing":
             self.game_over = True
