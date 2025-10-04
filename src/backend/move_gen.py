@@ -138,7 +138,8 @@ def getLegalMoves(board, color, history):
             if color == "black" and piece > 0:
                 continue
 
-            for nx, ny in getPseudoLegalMoves(board.board, x, y):
+            # Pass en_passant_target to getPseudoLegalMoves
+            for nx, ny in getPseudoLegalMoves(board.board, x, y, board.en_passant_target):
                 move = ((x, y), (nx, ny))
                 record = board.apply_move(move)
 
