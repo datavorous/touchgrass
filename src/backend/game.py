@@ -62,3 +62,16 @@ class Game:
         self.turn = "black" if self.turn == "white" else "white"
         self.game_over = False
         self.result = None
+
+    def set_position_from_fen(self, fen_string):
+        """Set the game position from a FEN string."""
+        from ..utils import parse_fen, find_king_positions
+        
+        board_array, active_color, _, _, _, _ = parse_fen(fen_string)
+        wking_pos, bking_pos = find_king_positions(board_array)
+        
+        self.board.set_position(board_array, wking_pos, bking_pos)
+        self.turn = active_color
+        self.game_over = False
+        self.result = None
+        self.history = []

@@ -65,14 +65,10 @@ class Board:
             to_sq=(tx, ty),
         )
 
-    def undo_move(self, move, move_record):
-        (fx, fy), (tx, ty) = move
-        # piece = self.board[tx][ty]
-
-        self.board[fx][fy] = move_record.moved_piece
-        self.board[tx][ty] = move_record.captured_piece
-
-        if move_record.moved_piece == WKING:
-            self.wking_pos = (fx, fy)
-        elif move_record.moved_piece == BKING:
-            self.bking_pos = (fx, fy)
+    def set_position(self, board_array, wking_pos=None, bking_pos=None):
+        """Set the board to a specific position."""
+        self.board = [row[:] for row in board_array]  # Deep copy
+        if wking_pos:
+            self.wking_pos = wking_pos
+        if bking_pos:
+            self.bking_pos = bking_pos

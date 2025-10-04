@@ -29,3 +29,7 @@ class API:
 
     def get_board(self):
         return self.g.board.board
+
+    def set_position_from_fen(self, fen_string):
+        """Set the game position from a FEN string."""
+        self.g.set_position_from_fen(fen_string)
