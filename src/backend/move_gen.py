@@ -139,7 +139,9 @@ def getLegalMoves(board, color, history):
                 continue
 
             # Pass en_passant_target to getPseudoLegalMoves
-            for nx, ny in getPseudoLegalMoves(board.board, x, y, board.en_passant_target):
+            for nx, ny in getPseudoLegalMoves(
+                board.board, x, y, board.en_passant_target
+            ):
                 move = ((x, y), (nx, ny))
                 record = board.apply_move(move)
 

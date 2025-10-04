@@ -11,7 +11,9 @@ class MoveRecord:
     to_sq: Tuple[int, int] = (0, 0)
     en_passant_target: Optional[Tuple[int, int]] = None
     was_en_passant_capture: bool = False
-    en_passant_capture_sq: Optional[Tuple[int, int]] = None  # Where the captured pawn was
+    en_passant_capture_sq: Optional[Tuple[int, int]] = (
+        None  # Where the captured pawn was
+    )
 
 
 EMPTY = 0
@@ -43,16 +45,20 @@ class Board:
 
         original_piece = self.board[fx][fy]
         captured = self.board[tx][ty]
-        
+
         # Store previous en passant target to restore on undo
         prev_en_passant = self.en_passant_target
         self.en_passant_target = None  # Reset by default
-        
+
         was_en_passant_capture = False
         en_passant_capture_sq = None
 
         # Check if this is an en passant capture
-        if abs(original_piece) == WPAWN and prev_en_passant is not None and (tx, ty) == prev_en_passant:
+        if (
+            abs(original_piece) == WPAWN
+            and prev_en_passant is not None
+            and (tx, ty) == prev_en_passant
+        ):
             was_en_passant_capture = True
             # The captured pawn is not on the target square, it's beside us
             if original_piece == WPAWN:  # White capturing black
@@ -116,13 +122,15 @@ class Board:
 
         # Restore the piece to its original position
         self.board[fx][fy] = move_record.moved_piece
-        
+
         # Restore the target square
         if move_record.was_en_passant_capture:
             # Target square should be empty
             self.board[tx][ty] = EMPTY
             # Restore the captured pawn to its actual position
-            self.board[move_record.en_passant_capture_sq[0]][move_record.en_passant_capture_sq[1]] = move_record.captured_piece
+            self.board[move_record.en_passant_capture_sq[0]][
+                move_record.en_passant_capture_sq[1]
+            ] = move_record.captured_piece
         else:
             # Normal move - restore whatever was captured
             self.board[tx][ty] = move_record.captured_piece
@@ -135,7 +143,7 @@ class Board:
             self.wking_pos = (fx, fy)
         elif move_record.moved_piece == BKING:
             self.bking_pos = (fx, fy)
-            
+
         # CASTLING UNDO
         if abs(move_record.moved_piece) == WKING and abs(fy - ty) == 2:
             # SHORT

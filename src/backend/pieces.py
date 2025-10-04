@@ -24,7 +24,11 @@ def pawn_moves(board_matrix, x, y, piece, en_passant_target=None):
     for dy in [-1, 1]:
         nx, ny = x + direction, y + dy
 
-        if in_bounds(nx, ny) and board_matrix[nx][ny] != EMPTY and board_matrix[nx][ny] * piece < 0:
+        if (
+            in_bounds(nx, ny)
+            and board_matrix[nx][ny] != EMPTY
+            and board_matrix[nx][ny] * piece < 0
+        ):
             moves.append((nx, ny))
 
     # En passant capture
@@ -44,7 +48,9 @@ def knight_moves(board_matrix, x, y, piece):
     for dx, dy in jumps:
         nx, ny = x + dx, y + dy
 
-        if in_bounds(nx, ny) and (board_matrix[nx][ny] == EMPTY or board_matrix[nx][ny] * piece < 0):
+        if in_bounds(nx, ny) and (
+            board_matrix[nx][ny] == EMPTY or board_matrix[nx][ny] * piece < 0
+        ):
             moves.append((nx, ny))
 
     return moves
@@ -78,7 +84,9 @@ def rook_moves(board_matrix, x, y, piece):
 
 
 def queen_moves(board_matrix, x, y, piece):
-    return bishop_moves(board_matrix, x, y, piece) + rook_moves(board_matrix, x, y, piece)
+    return bishop_moves(board_matrix, x, y, piece) + rook_moves(
+        board_matrix, x, y, piece
+    )
 
 
 def king_moves(board_matrix, x, y, piece):
