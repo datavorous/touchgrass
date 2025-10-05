@@ -9,6 +9,7 @@ class MoveRecord:
     promotion: Optional[int] = None
     from_sq: Tuple[int, int] = (0, 0)
     to_sq: Tuple[int, int] = (0, 0)
+    en_passant: bool = False
 
 
 EMPTY = 0
@@ -44,11 +45,19 @@ class Board:
         self.board[tx][ty] = original_piece
         self.board[fx][fy] = EMPTY
 
+        en_passant = False
+
         if original_piece == WKING:
             self.wking_pos = (tx, ty)
         elif original_piece == BKING:
             self.bking_pos = (tx, ty)
 
+        # HANDLE EN PASSANT
+        elif captured == EMPTY and abs(original_piece) == WPAWN:
+            if fy != ty:
+                captured = self.board[tx + abs(original_piece)][ty]
+                self.board[tx + abs(original_piece)][ty] = EMPTY
+                en_passant = True
         # HANDLE CASTLING
         # CHECK IF KING MADE A 2SQR MOVE
         if abs(original_piece) == WKING and abs(fy - ty) == 2:
@@ -77,6 +86,7 @@ class Board:
             promotion=promotion,
             from_sq=(fx, fy),
             to_sq=(tx, ty),
+            en_passant=en_passant,
         )
 
     def undo_move(self, move, move_record):
@@ -102,3 +112,9 @@ class Board:
                 rook = self.board[fx][3]
                 self.board[fx][0] = rook  # nudo rook
                 self.board[fx][3] = EMPTY
+
+        # ENPASSANT UNDO
+        elif move_record.en_passant:
+            self.board[tx][ty] = EMPTY
+            rank = tx + abs(move_record.moved_piece)
+            self.board[rank][ty] = move_record.captured_piece
