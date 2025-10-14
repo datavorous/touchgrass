@@ -22,6 +22,37 @@ class Game:
         king_pos = self.board.wking_pos if color == "white" else self.board.bking_pos
         return isSquareAttacked(self.board, *king_pos, by_white=(color == "black"))
 
+    def is_insufficient_material(self):
+        white_pieces = []
+        black_pieces = []
+        
+        for x in range(8):
+            for y in range(8):
+                piece = self.board.board[x][y]
+                if piece > 0:
+                    white_pieces.append(piece)
+                elif piece < 0:
+                    black_pieces.append(abs(piece))
+        
+        white_pieces.sort()
+        black_pieces.sort()
+        
+        if len(white_pieces) == 1 and len(black_pieces) == 1:
+            return True
+        
+        if len(white_pieces) == 2 and len(black_pieces) == 1:
+            if WKNIGHT in white_pieces or WBISHOP in white_pieces:
+                return True
+        
+        if len(white_pieces) == 1 and len(black_pieces) == 2:
+            if WKNIGHT in black_pieces or WBISHOP in black_pieces:
+                return True
+        
+        if len(white_pieces) == 2 and len(black_pieces) == 2:
+            if (WKNIGHT in white_pieces or WBISHOP in white_pieces) and (WKNIGHT in black_pieces or WBISHOP in black_pieces):
+                return True
+        
+        return False
 
     def get_gamestate(self):
         moves = self.legal_moves()
@@ -30,13 +61,15 @@ class Game:
             return "draw_fifty_move_rule"
 
         if moves:
+            if self.is_insufficient_material():
+                return "draw_insufficient_material"
             return "ongoing"
 
         if self.is_check(self.turn):
             winner = "white" if self.turn == "black" else "black"
             return f"checkmate_{winner}"
         else:
-            return "ongoing"
+            return "stalemate"
 
     def legal_moves(self):
         return getLegalMoves(self.board, self.turn, self.history)
