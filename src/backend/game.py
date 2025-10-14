@@ -36,7 +36,7 @@ class Game:
             winner = "white" if self.turn == "black" else "black"
             return f"checkmate_{winner}"
         else:
-            return "ongoing"
+            return "stalemate"
 
     def legal_moves(self):
         return getLegalMoves(self.board, self.turn, self.history)
