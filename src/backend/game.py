@@ -3,8 +3,8 @@ from .board import WPAWN, WKNIGHT, WBISHOP, WROOK, WQUEEN, WKING
 from .board import BPAWN, BKNIGHT, BBISHOP, BROOK, BQUEEN, BKING, EMPTY
 
 # import random
-from .move_gen import getLegalMoves, isSquareAttacked
-from .move_gen import canCastle
+from .move_gen import get_legal_moves, is_square_attacked
+from .move_gen import can_castle
 
 
 class Game:
@@ -20,8 +20,7 @@ class Game:
 
     def is_check(self, color):
         king_pos = self.board.wking_pos if color == "white" else self.board.bking_pos
-        return isSquareAttacked(self.board, *king_pos, by_white=(color == "black"))
-
+        return is_square_attacked(self.board, *king_pos, by_white=(color == "black"))
 
     def get_gamestate(self):
         moves = self.legal_moves()
@@ -39,7 +38,7 @@ class Game:
             return "stalemate"
 
     def legal_moves(self):
-        return getLegalMoves(self.board, self.turn, self.history)
+        return get_legal_moves(self.board, self.turn, self.history)
 
     def make_move(self, move):
         if move not in self.legal_moves():
