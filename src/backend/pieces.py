@@ -95,7 +95,7 @@ def king_moves(board, x, y, piece):
     return moves
 
 
-def getPseudoLegalMoves(board, x, y):
+def get_pesudo_legal_moves(board, x, y):
     piece = board[x][y]
     if piece == EMPTY:
         return []

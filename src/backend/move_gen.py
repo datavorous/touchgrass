@@ -1,10 +1,10 @@
-from .pieces import getPseudoLegalMoves, in_bounds
+from .pieces import get_pesudo_legal_moves, in_bounds
 from .board import WPAWN, WKNIGHT, WBISHOP, WROOK, WQUEEN, WKING
 from .board import EMPTY
 from .board import BPAWN, BKNIGHT, BBISHOP, BROOK, BQUEEN, BKING
 
 
-def isSquareAttacked(board, x, y, by_white):
+def is_square_attacked(board, x, y, by_white):
     # pawns
     direction = 1 if by_white else -1
     for dy in [-1, 1]:
@@ -71,7 +71,7 @@ def isSquareAttacked(board, x, y, by_white):
     return False
 
 
-def getEnPassantMoves(board, color, history):
+def get_enpassant_move(board, color, history):
     if not history:
         return []
 
@@ -98,7 +98,7 @@ def getEnPassantMoves(board, color, history):
     return moves
 
 
-def canCastle(board, color, side, history):
+def can_castle(board, color, side, history):
     row = 7 if color == "white" else 0
     king = WKING if color == "white" else BKING
     castle_rook = WROOK if color == "white" else BROOK
@@ -113,7 +113,7 @@ def canCastle(board, color, side, history):
             and board.board[row][7] == castle_rook
             and board.board[row][4] == king
             and all(
-                not isSquareAttacked(board, row, col, by_white=by_white)
+                not is_square_attacked(board, row, col, by_white=by_white)
                 for col in [4, 5, 6]
             )
         ):
@@ -136,7 +136,7 @@ def canCastle(board, color, side, history):
             and board.board[row][0] == castle_rook
             and board.board[row][4] == king
             and all(
-                not isSquareAttacked(board, row, col, by_white=by_white)
+                not is_square_attacked(board, row, col, by_white=by_white)
                 for col in [4, 3, 2]
             )
         ):
@@ -152,7 +152,7 @@ def canCastle(board, color, side, history):
     return False
 
 
-def getLegalMoves(board, color, history):
+def get_legal_moves(board, color, history):
     moves = []
 
     for x in range(8):
@@ -165,24 +165,26 @@ def getLegalMoves(board, color, history):
             if color == "black" and piece > 0:
                 continue
 
-            for nx, ny in getPseudoLegalMoves(board.board, x, y):
+            for nx, ny in get_pesudo_legal_moves(board.board, x, y):
                 move = ((x, y), (nx, ny))
 
                 record = board.apply_move(move)
 
                 king_pos = board.wking_pos if color == "white" else board.bking_pos
-                if not isSquareAttacked(board, *king_pos, by_white=(color == "black")):
+                if not is_square_attacked(
+                    board, *king_pos, by_white=(color == "black")
+                ):
                     moves.append(move)
 
                 board.undo_move(move, record)
 
     # EN PASSANT LOGIC
 
-    for move in getEnPassantMoves(board.board, color, history):
+    for move in get_enpassant_move(board.board, color, history):
         record = board.apply_move(move)
 
         king_pos = board.wking_pos if color == "white" else board.bking_pos
-        if not isSquareAttacked(board, *king_pos, by_white=(color == "black")):
+        if not is_square_attacked(board, *king_pos, by_white=(color == "black")):
             moves.append(move)
 
         board.undo_move(move, record)
@@ -193,13 +195,13 @@ def getLegalMoves(board, color, history):
     king_start = (row, 4)
 
     # (SHORT) castling
-    if canCastle(board, color, "SHORT", history):
+    if can_castle(board, color, "SHORT", history):
         rook_start = (row, 7)
         # King moves
         moves.append((king_start, (row, 6)))
 
     # (LONG) castling
-    if canCastle(board, color, "LONG", history):
+    if can_castle(board, color, "LONG", history):
         rook_start = (row, 0)
         # King moves
         moves.append((king_start, (row, 2)))
