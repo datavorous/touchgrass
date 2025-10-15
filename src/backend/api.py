@@ -26,6 +26,18 @@ class API:
 
     def undo_move(self, move, record):
         return self.g.board.undo_move(move, record)
+    
+    def undo(self):
+        return self.g.undo()
+    
+    def redo(self):
+        return self.g.redo()
+    
+    def can_undo(self):
+        return self.g.can_undo()
+    
+    def can_redo(self):
+        return self.g.can_redo()
 
     def get_board(self):
         return self.g.board.board
